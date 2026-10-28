@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero - QA Proyectos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/app.css" rel="stylesheet">
+</head>
+<body>
+<main class="pagina ancha" data-nav="tablero">
+    <div class="migas"><a href="/proyectos.html">Proyectos</a> / <a href="/proyectos.html" id="migaProyecto">…</a></div>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 id="nombreTablero">Cargando tablero…</h1>
+            <p class="subtitulo" id="resumenTablero"></p>
+        </div>
+        <div class="acciones">
+            <select class="form-select form-select-sm w-auto d-none" id="selectorTablero" aria-label="Cambiar de tablero"></select>
+            <button class="btn btn-secundario" type="button" data-bs-toggle="collapse" data-bs-target="#panelReglas" aria-expanded="false" aria-controls="panelReglas">Reglas de transición</button>
+            <div class="dropdown d-none" id="menuAdminTablero">
+                <button class="btn btn-secundario dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Más acciones</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button class="dropdown-item" type="button" id="btnAgregarColumna">Agregar columna</button></li>
+                    <li><button class="dropdown-item" type="button" id="btnRenombrarTablero">Renombrar tablero</button></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button class="dropdown-item peligro" type="button" id="btnEliminarTablero">Eliminar tablero</button></li>
+                </ul>
+            </div>
+            <button class="btn btn-primary" type="button" id="btnNuevaTarea">Nueva tarea</button>
+        </div>
+    </div>
+
+    <!-- Reglas de transición (controladas por el servidor) -->
+    <div class="collapse mb-3" id="panelReglas">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-titulo mb-2">Reglas de transición</h2>
+                <p class="text-secondary-ui mb-2">El servidor valida cada movimiento, ya sea arrastrando la tarjeta o desde el detalle de la tarea.</p>
+                <ul class="reglas mb-0 ps-3">
+                    <li><strong>Por hacer → En progreso:</strong> la tarea debe tener un responsable asignado. Si no tiene fecha de inicio, se registra la de hoy.</li>
+                    <li><strong>En progreso → En revisión / QA:</strong> solo el responsable (o un Administrador) y con el avance completo: al menos una subtarea y todas completadas.</li>
+                    <li><strong>En revisión / QA → Completado:</strong> la tarea aprobó la validación. Se registra la fecha de cierre.</li>
+                    <li><strong>En revisión / QA → En progreso:</strong> se detectaron defectos; es obligatorio describirlos (queda como comentario y en el historial).</li>
+                    <li><strong>Completado:</strong> estado final de solo lectura. Únicamente un Administrador puede reabrirla, indicando el motivo.</li>
+                    <li>Cualquier otro salto (por ejemplo, Por hacer → Completado) es rechazado. Mover entre columnas del mismo estado está permitido.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="barra-filtros">
+        <input type="search" class="form-control form-control-sm buscar" id="filtroTexto" placeholder="Buscar por título o etiqueta" aria-label="Buscar tareas">
+        <select class="form-select form-select-sm" id="filtroTipo" aria-label="Filtrar por tipo">
+            <option value="">Todos los tipos</option><option value="Tarea">Tareas</option><option value="Bug">Bugs</option>
+        </select>
+        <select class="form-select form-select-sm" id="filtroPrioridad" aria-label="Filtrar por prioridad">
+            <option value="">Todas las prioridades</option><option>Alta</option><option>Media</option><option>Baja</option>
+        </select>
+        <select class="form-select form-select-sm" id="filtroResponsable" aria-label="Filtrar por responsable"></select>
+        <div class="form-check ms-1">
+            <input class="form-check-input" type="checkbox" id="filtroVencidas">
+            <label class="form-check-label" for="filtroVencidas">Solo vencidas</label>
+        </div>
+    </div>
+
+    <div class="kanban" id="kanban"></div>
+</main>
+
+<!-- Modal: nueva tarea -->
+<div class="modal fade" id="modalNuevaTarea" tabindex="-1" aria-labelledby="tituloNuevaTarea" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" id="formNuevaTarea" novalidate>
+            <div class="modal-header">
+                <h2 class="modal-title" id="tituloNuevaTarea">Nueva tarea</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-secondary-ui">La tarea se crea en "Por hacer" (Backlog).</p>
+                <div class="campos-tarea" data-prefijo="nueva"></div>
+                <div class="mensaje-formulario error" id="errorNuevaTarea"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear tarea</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: detalle de tarea -->
+<div class="modal fade" id="modalTarea" tabindex="-1" aria-labelledby="tituloDetalle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="me-3">
+                    <div class="d-flex flex-wrap gap-1 mb-1" id="insigniasDetalle"></div>
+                    <h2 class="modal-title" id="tituloDetalle">Tarea</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mensaje-formulario exito mt-0 mb-3" id="avisoCerrada"></div>
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <form id="formDetalle" novalidate>
+                            <h3 class="card-titulo mb-2">Detalles</h3>
+                            <div class="campos-tarea" data-prefijo="detalle"></div>
+                            <div class="mensaje-formulario error" id="errorDetalle"></div>
+                            <div class="d-flex justify-content-end mt-2">
+                                <button type="submit" class="btn btn-primary btn-sm" id="btnGuardarDetalle">Guardar cambios</button>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="card-titulo mb-0">Subtareas</h3>
+                            <span class="small text-secondary-ui" id="textoAvance"></span>
+                        </div>
+                        <div class="progreso grande mb-3"><div id="barraAvance" style="width:0%"></div></div>
+                        <div id="listaSubtareas"></div>
+                        <form class="d-flex gap-2 mt-2" id="formSubtarea">
+                            <input type="text" class="form-control form-control-sm" id="tituloSubtarea" placeholder="Nueva subtarea" maxlength="150" aria-label="Nueva subtarea">
+                            <button class="btn btn-secundario btn-sm" type="submit">Agregar</button>
+                        </form>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h3 class="card-titulo mb-2">Estado</h3>
+                                <div class="mb-2" id="estadoActual"></div>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select form-select-sm" id="selectMover" aria-label="Mover a otra columna"></select>
+                                    <button class="btn btn-secundario btn-sm text-nowrap" type="button" id="btnMover">Mover</button>
+                                </div>
+                                <hr>
+                                <dl class="panel-info mb-0" id="panelFechas"></dl>
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabComentarios" type="button" role="tab" id="pestanaComentarios">Comentarios</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabHistorial" type="button" role="tab" id="pestanaHistorial">Historial</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tabComentarios" role="tabpanel">
+                                <form id="formComentario" class="mb-3">
+                                    <textarea class="form-control mb-2" id="textoComentario" rows="2" maxlength="1000" placeholder="Escribe una observación o retroalimentación" aria-label="Comentario"></textarea>
+                                    <div class="d-flex justify-content-end"><button class="btn btn-secundario btn-sm" type="submit">Comentar</button></div>
+                                </form>
+                                <div id="listaComentarios"></div>
+                            </div>
+                            <div class="tab-pane fade" id="tabHistorial" role="tabpanel">
+                                <ul class="linea-tiempo" id="listaHistorial"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-texto peligro d-none" id="btnEliminarTarea">Eliminar tarea</button>
+                <button type="button" class="btn btn-secundario" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: columna -->
+<div class="modal fade" id="modalColumna" tabindex="-1" aria-labelledby="tituloColumna" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="formColumna" novalidate>
+            <div class="modal-header">
+                <h2 class="modal-title" id="tituloColumna">Agregar columna</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="nombreColumna">Nombre</label>
+                    <input type="text" class="form-control" id="nombreColumna" maxlength="50" required>
+                    <div class="invalid-feedback">El nombre es obligatorio.</div>
+                </div>
+                <div>
+                    <label class="form-label" for="tipoColumna">Pertenece al estado</label>
+                    <select class="form-select" id="tipoColumna">
+                        <option value="por_hacer">Por hacer</option>
+                        <option value="en_progreso" selected>En progreso</option>
+                        <option value="en_revision">En revisión / QA</option>
+                        <option value="completado">Completado</option>
+                    </select>
+                    <div class="form-text">Las reglas de transición se aplican según el estado, no según el nombre.</div>
+                </div>
+                <div class="mensaje-formulario error" id="errorColumna"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Agregar columna</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Plantilla de los campos de una tarea (se usa en "nueva" y en "detalle") -->
+<template id="plantillaCampos">
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label" for="{p}Titulo">Título</label>
+            <input type="text" class="form-control" id="{p}Titulo" maxlength="150" required>
+            <div class="invalid-feedback">El título es obligatorio.</div>
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="{p}Descripcion">Descripción</label>
+            <textarea class="form-control" id="{p}Descripcion" rows="3" maxlength="2000" placeholder="Qué se debe hacer y cuál es el criterio de aceptación"></textarea>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-label" for="{p}Tipo">Tipo</label>
+            <select class="form-select" id="{p}Tipo"><option>Tarea</option><option>Bug</option></select>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-label" for="{p}Prioridad">Prioridad</label>
+            <select class="form-select" id="{p}Prioridad"><option>Alta</option><option selected>Media</option><option>Baja</option></select>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-label" for="{p}Responsable">Responsable</label>
+            <select class="form-select" id="{p}Responsable"></select>
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="{p}Etiquetas">Etiquetas / categoría</label>
+            <input type="text" class="form-control" id="{p}Etiquetas" placeholder="Ej. frontend, login, sprint 2">
+            <div class="form-text">Sepáralas con comas (máximo 8).</div>
+        </div>
+        <div class="col-sm-6">
+            <label class="form-label" for="{p}Inicio">Fecha de inicio</label>
+            <input type="date" class="form-control" id="{p}Inicio">
+        </div>
+        <div class="col-sm-6">
+            <label class="form-label" for="{p}Limite">Fecha límite</label>
+            <input type="date" class="form-control" id="{p}Limite">
+            <div class="invalid-feedback">La fecha límite no puede ser anterior al inicio.</div>
+        </div>
+    </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/tablero.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyectos - QA Proyectos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/app.css" rel="stylesheet">
+</head>
+<body>
+<main class="pagina" data-nav="proyectos">
+    <div class="encabezado-pagina">
+        <div>
+            <h1>Proyectos</h1>
+            <p class="subtitulo" id="subtituloProyectos">Espacios de trabajo, sus tableros y miembros</p>
+        </div>
+        <div class="acciones">
+            <div class="btn-group" role="group" aria-label="Modo de vista">
+                <button class="btn btn-outline-secondary btn-sm" id="btnVistaCards" type="button">Tarjetas</button>
+                <button class="btn btn-outline-secondary btn-sm" id="btnVistaTabla" type="button">Tabla</button>
+            </div>
+            <button class="btn btn-primary d-none" id="btnNuevoProyecto" type="button">Nuevo proyecto</button>
+        </div>
+    </div>
+
+    <div id="listaProyectos"></div>
+</main>
+
+<!-- Modal: crear / editar proyecto -->
+<div class="modal fade" id="modalProyecto" tabindex="-1" aria-labelledby="tituloModalProyecto" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="formProyecto" novalidate>
+            <div class="modal-header">
+                <h2 class="modal-title" id="tituloModalProyecto">Nuevo proyecto</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="nombreProyecto">Nombre</label>
+                    <input type="text" class="form-control" id="nombreProyecto" maxlength="100" required>
+                    <div class="invalid-feedback">El nombre del proyecto es obligatorio.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="descProyecto">Descripción</label>
+                    <textarea class="form-control" id="descProyecto" rows="2" maxlength="500"></textarea>
+                </div>
+                <div id="zonaMiembrosNuevo">
+                    <label class="form-label">Miembros del proyecto</label>
+                    <div class="form-text mt-0 mb-2">Los colaboradores solo ven los proyectos a los que pertenecen. Se creará un "Tablero principal" con los 4 estados.</div>
+                    <div class="border rounded-3 p-2" style="max-height: 200px; overflow-y: auto;" id="listaMiembrosNuevo"></div>
+                </div>
+                <div class="mensaje-formulario error mt-3" id="errorProyecto"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btnGuardarProyecto">Crear proyecto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: miembros -->
+<div class="modal fade" id="modalMiembros" tabindex="-1" aria-labelledby="tituloModalMiembros" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="formMiembros">
+            <div class="modal-header">
+                <h2 class="modal-title" id="tituloModalMiembros">Miembros</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-secondary-ui mb-2">Selecciona quiénes pueden ver y trabajar en los tableros de este proyecto. Los Administradores tienen acceso a todos los proyectos.</p>
+                <div class="border rounded-3 p-2" style="max-height: 320px; overflow-y: auto;" id="listaMiembros"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar miembros</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/proyectos.js"></script>
+</body>
+</html>

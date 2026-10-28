@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar sesión - QA Proyectos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="auth">
+      <div class="auth-caja">
+        <div class="auth-marca"><span class="logo">QA</span><span>QA Proyectos</span></div>
+        <div class="card">
+          <div class="card-body">
+            <!-- INICIAR SESIÓN -->
+            <section id="seccionLogin">
+              <h1>Iniciar sesión</h1>
+              <p class="text-secondary-ui mb-4">Gestión de tareas y proyectos con control de calidad.</p>
+              <form id="loginForm" novalidate>
+                <div class="mb-3">
+                  <label class="form-label" for="emailLogin">Correo electrónico</label>
+                  <input type="email" class="form-control" id="emailLogin" autocomplete="email" required />
+                </div>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <label class="form-label" for="passwordLogin">Contraseña</label>
+                    <a href="#" id="btnRecuperar" class="small">¿Olvidaste tu contraseña?</a>
+                  </div>
+                  <input type="password" class="form-control" id="passwordLogin" autocomplete="current-password" required />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+              </form>
+              <p class="text-center text-secondary-ui mt-4 mb-0">
+                ¿No tienes cuenta? <a href="#" id="btnMostrarRegistro">Crear cuenta</a>
+              </p>
+            </section>
+
+            <!-- CREAR CUENTA -->
+            <section id="seccionRegistro" style="display: none">
+              <h1>Crear cuenta</h1>
+              <p class="text-secondary-ui mb-4">Completa tus datos para registrarte.</p>
+              <form id="registroForm" novalidate>
+                <div class="mb-3">
+                  <label class="form-label" for="nombreReg">Nombre completo</label>
+                  <input type="text" class="form-control" id="nombreReg" maxlength="80" autocomplete="name" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="emailReg">Correo electrónico</label>
+                  <input type="email" class="form-control" id="emailReg" autocomplete="email" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="passwordReg">Contraseña</label>
+                  <input type="password" class="form-control" id="passwordReg" autocomplete="new-password" required />
+                  <div class="form-text">Mínimo 8 caracteres, una mayúscula y un número.</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="rolReg">Rol</label>
+                  <select class="form-select" id="rolReg" required>
+                    <option value="Miembro/Colaborador">Miembro/Colaborador</option>
+                    <option value="Administrador">Administrador</option>
+                  </select>
+                </div>
+                <div class="mb-3" id="contenedorCodigoAdmin" style="display: none">
+                  <label class="form-label" for="codigoAdmin">Código de administrador</label>
+                  <input type="password" class="form-control" id="codigoAdmin" autocomplete="off" />
+                  <div class="form-text">Lo proporciona el responsable del sistema.</div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Crear cuenta</button>
+              </form>
+              <p class="text-center text-secondary-ui mt-4 mb-0">
+                ¿Ya tienes cuenta? <a href="#" id="btnMostrarLogin">Iniciar sesión</a>
+              </p>
+            </section>
+
+            <!-- RECUPERAR CONTRASEÑA -->
+            <section id="seccionRecuperar" style="display: none">
+              <h1>Recuperar contraseña</h1>
+              <p class="text-secondary-ui mb-4">Te enviaremos un enlace para crear una nueva contraseña.</p>
+              <form id="recuperarForm" novalidate>
+                <div class="mb-3">
+                  <label class="form-label" for="emailRecuperar">Correo electrónico</label>
+                  <input type="email" class="form-control" id="emailRecuperar" autocomplete="email" required />
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="btnEnviarRecuperar">Enviar enlace</button>
+              </form>
+              <p class="text-center mt-4 mb-0"><a href="#" id="btnVolverLogin">Volver a iniciar sesión</a></p>
+            </section>
+
+            <div id="mensajeAlerta" class="mensaje-formulario" role="status"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

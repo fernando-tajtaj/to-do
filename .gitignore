@@ -1,0 +1,23 @@
+# Dependencias
+node_modules/
+
+# Base de datos SQLite (se genera al correr la app, incluye respaldos)
+data/
+*.db
+*.sqlite
+*.db-journal
+
+# Variables de entorno (solo se sube la plantilla)
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
