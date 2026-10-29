@@ -176,6 +176,12 @@ a:hover { text-decoration: underline; }
 .form-control:disabled, .form-select:disabled { background-color: var(--surface-subdued); color: var(--text-secondary); }
 .form-select { padding-right: 32px; background-position: right 10px center; }
 .form-control::placeholder { color: var(--text-muted); }
+/* Botón "Mostrar / Ocultar" pegado al campo de contraseña */
+.input-group .btn-ver-password {
+  border: 1px solid #8a8a8a; border-left: 0; box-shadow: none; border-radius: 0 8px 8px 0;
+  font-size: 0.75rem; min-width: 72px; color: var(--text-secondary);
+}
+.input-group .btn-ver-password:focus-visible { box-shadow: 0 0 0 2px var(--primary); z-index: 5; }
 .form-control-sm { font-size: 0.75rem; padding: 3px 8px; }
 .form-select-sm { font-size: 0.75rem; padding: 3px 28px 3px 8px; background-position: right 8px center; }
 .form-text { color: var(--text-secondary); font-size: 0.75rem; }
